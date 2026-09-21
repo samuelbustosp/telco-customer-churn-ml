@@ -1,0 +1,41 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Variables de entorno
+.env
+.env.*
+
+# Archivos de IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Datos locales (ignorar datasets pesados temporales, pero versionar el dataset del proyecto)
+*.csv
+*.xlsx
+!dataset/Telco-Customer-Churn.csv
+
+# Modelos entrenados
+*.pkl
+*.joblib
+*.h5
+
+# Archivos temporales
+*.tmp
+*.temp
