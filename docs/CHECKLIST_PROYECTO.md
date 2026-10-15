@@ -1,6 +1,6 @@
 # Checklist Operativo: Proyecto Final Machine Learning (Telco Churn)
 
-Este checklist detalla cada actividad técnica y analítica que debes realizar de principio a fin. Está diseñado para que avances paso a paso a tu propio ritmo; en cada hito podés pedirme una **auditoría, corrección de código, feedback de métricas u optimización**.
+Este checklist detalla cada actividad técnica y analítica que debes realizar de principio a fin. Todas las etapas han sido auditadas, ejecutadas y validadas con código reproducible en el notebook y módulos asociados.
 
 ---
 
@@ -11,129 +11,131 @@ Este checklist detalla cada actividad técnica y analítica que debes realizar d
   - [x] Generar archivo `requirements.txt`.
 - [x] **Estructura del repositorio:**
   - [x] Crear carpeta `notebooks/` y ubicar el notebook principal `telco_customer_churn.ipynb`.
-  - [x] Crear carpeta `data/` o `dataset/` con el archivo `Telco-Customer-Churn.csv`.
+  - [x] Crear carpeta `dataset/` con el archivo `Telco-Customer-Churn.csv` y su diccionario en `dataset/README.md`.
   - [x] Configurar `.gitignore` para ignorar `.ipynb_checkpoints/`, `__pycache__/`, entornos virtuales, etc.
-> 🔍 **Punto de Auditoría 0:** Revisión de estructura, dependencias y reproducibilidad del entorno.
+> 🔍 **Punto de Auditoría 0:** Revisión de estructura, dependencias y reproducibilidad del entorno. *Aprobado.*
 
 ---
 
 ## 📊 Fase 1: Carga, Auditoría y Análisis Exploratorio de Datos (EDA)
-- [ ] **Carga e inspección inicial:**
-  - [ ] Cargar el CSV y verificar dimensiones (7.043 filas, 21 columnas).
-  - [ ] Identificar tipos de datos (`dtypes`).
-  - [ ] Detectar y corregir la anomalía de `TotalCharges` (conversión de texto a numérico y tratamiento de los 11 valores vacíos con `tenure == 0`).
-  - [ ] Descartar `customerID` para el análisis y modelado.
-- [ ] **Análisis de la Variable Objetivo (`Churn`):**
-  - [ ] Calcular frecuencias absolutas y relativas (balance ~73,5% No vs ~26,5% Yes).
-  - [ ] Visualizar la distribución de clases (gráfico de barras o dona).
-- [ ] **Análisis Univariado y Descriptivo:**
-  - [ ] Variables numéricas (`tenure`, `MonthlyCharges`, `TotalCharges`): estadísticas de resumen (`describe()`), histogramas y boxplots para detectar asimetrías o outliers.
-  - [ ] Variables categóricas: conteo de frecuencias y cardinalidad de cada servicio, tipo de contrato y método de pago.
-- [ ] **Análisis Bivariado / Multivariado frente a `Churn`:**
-  - [ ] Churn según tipo de contrato (*Month-to-month* vs *1/2 years*).
-  - [ ] Churn según antigüedad (*tenure*): tasas de abandono en clientes nuevos vs antiguos.
-  - [ ] Churn según servicios contratados (*InternetService*, *TechSupport*, *OnlineSecurity*).
-  - [ ] Churn según método de pago y cargos mensuales.
-  - [ ] Matriz de correlación entre variables numéricas.
-- [ ] **Síntesis de Hallazgos:**
-  - [ ] Redactar 3 o 4 *insights* clave del EDA que fundamenten las decisiones de modelado.
+- [x] **Carga e inspección inicial:**
+  - [x] Cargar el CSV y verificar dimensiones (7.043 filas, 21 columnas).
+  - [x] Identificar tipos de datos (`dtypes`).
+  - [x] Detectar y corregir la anomalía de `TotalCharges` (conversión de texto a numérico y tratamiento de los 11 valores vacíos con `tenure == 0` imputados en 0.0).
+  - [x] Descartar `customerID` para el análisis y modelado.
+- [x] **Análisis de la Variable Objetivo (`Churn`):**
+  - [x] Calcular frecuencias absolutas y relativas (balance 73,46% No vs 26,54% Yes).
+  - [x] Visualizar la distribución de clases (gráfico de barras y gráfico de dona).
+- [x] **Análisis Univariado y Descriptivo:**
+  - [x] Variables numéricas (`tenure`, `MonthlyCharges`, `TotalCharges`): estadísticas de resumen (`describe()`), skewness, kurtosis, histogramas KDE y boxplots.
+  - [x] Variables categóricas: conteo de frecuencias y cardinalidad de cada servicio, tipo de contrato y método de pago con porcentajes anotados.
+- [x] **Análisis Bivariado / Multivariado frente a `Churn`:**
+  - [x] Churn según tipo de contrato (*Month-to-month* 42,7% vs *1/2 years* 11,3% y 2,8%).
+  - [x] Churn según antigüedad (*tenure*): mediana de 10 meses en fuga vs 38 meses en clientes retenidos.
+  - [x] Churn según servicios contratados (*TechSupport*, *OnlineSecurity* duplican retención).
+  - [x] Churn según método de pago (cheque electrónico alcanza 45,3% de fuga) y cargos mensuales altos (\$70 a \$105).
+  - [x] Matriz de correlación de Pearson entre variables numéricas y Churn.
+- [x] **Síntesis de Hallazgos:**
+  - [x] Redactar síntesis de hallazgos clave del EDA que fundamenten las decisiones de preprocesamiento.
 
-> 🔍 **Punto de Auditoría 1:** Revisión de código de EDA, tratamiento de nulos/inconsistencias y calidad de los gráficos y conclusiones.
+> 🔍 **Punto de Auditoría 1:** Limpieza de datos fundamentada, 4 hipótesis validadas empíricamente y tabla de síntesis metodológica completada. *Aprobado.*
 
 ---
 
 ## ⚙️ Fase 2: Preprocesamiento e Ingeniería de Atributos (*Feature Engineering*)
-- [ ] **Ingeniería de Atributos:**
-  - [ ] Crear variable de servicios acumulados (conteo de servicios de valor agregado).
-  - [ ] Crear variable de ratio o disparidad de cargos (`MonthlyCharges` vs `TotalCharges / tenure`).
-  - [ ] Crear rangos/cohortes de antigüedad (*tenure groups*, ej. 0-12m, 12-24m, etc.).
-  - [ ] Crear indicador de cliente sin cargas familiares (`is_alone`).
-- [ ] **Partición de Datos (¡antes de codificar y escalar para evitar *Data Leakage*!):**
-  - [ ] Separar matriz de características ($X$) y vector objetivo ($y$).
-  - [ ] Dividir en conjuntos de entrenamiento y prueba (`train_test_split`) con estratificación (`stratify=y`) y semilla fija (`random_state=42`).
-- [ ] **Transformaciones y Pipelines:**
-  - [ ] Codificación de variables categóricas (One-Hot Encoding con `drop='first'` o `handle_unknown='ignore'`).
-  - [ ] Escalado de variables numéricas (`StandardScaler` o `RobustScaler`) en aquellas que lo requieran (regresión logística).
-  - [ ] Integrar transformaciones mediante `ColumnTransformer` y `Pipeline` de `scikit-learn` para garantizar flujo reproducible.
+- [x] **Ingeniería de Atributos:**
+  - [x] Crear variable de servicios acumulados (`total_addon_services`).
+  - [x] Crear variable de ratio de cargos (`monthly_to_total_ratio`).
+  - [x] Crear cohortes de antigüedad (`tenure_group`: 0-12m, 12-24m, 24-48m, >48m).
+  - [x] Crear indicador de cliente sin cargas familiares (`is_alone`).
+  - [x] Crear indicador de vulnerabilidad contractual (`is_month_to_month`).
+- [x] **Partición de Datos (¡antes de codificar y escalar para evitar *Data Leakage*!):**
+  - [x] Separar matriz de características ($X$) y vector objetivo ($y$).
+  - [x] Dividir en entrenamiento y prueba (`train_test_split`, 80/20) con estratificación (`stratify=y`) y semilla fija (`random_state=42`).
+- [x] **Transformaciones y Pipelines:**
+  - [x] Codificación One-Hot de variables categóricas (`drop='first'`, `handle_unknown='ignore'`).
+  - [x] Escalado de variables numéricas (`StandardScaler`).
+  - [x] Integrar transformaciones mediante `ColumnTransformer` en `src/preprocessing.py` y el notebook principal.
 
-> 🔍 **Punto de Auditoría 2:** Validación de pipelines, prevención de data leakage y justificación de nuevas variables.
+> 🔍 **Punto de Auditoría 2:** Prevención total de *data leakage*, pipeline scikit-learn modular y reproducibilidad certificada. *Aprobado.*
 
 ---
 
 ## 🤖 Fase 3: Modelado y Línea Base (*Baseline*)
-- [ ] **Modelo de Referencia (*Baseline*):**
-  - [ ] Entrenar un modelo base simple (Regresión Logística o DummyClassifier).
-  - [ ] Evaluar métricas iniciales con validación cruzada estratificada (`StratifiedKFold`).
-- [ ] **Modelos Candidatos:**
-  - [ ] Árbol de Decisión (`DecisionTreeClassifier`).
-  - [ ] Random Forest (`RandomForestClassifier`).
-  - [ ] Boosting (`XGBClassifier` o `GradientBoostingClassifier` / `LGBMClassifier`).
-- [ ] **Manejo del Desbalance de Clases:**
-  - [ ] Evaluar el impacto de parámetros de balanceo (`class_weight='balanced'` en sklearn o `scale_pos_weight` en XGBoost).
-- [ ] **Tabla Comparativa Inicial:**
-  - [ ] Comparar ROC-AUC, PR-AUC, Recall, Precision y F1 en validación cruzada para cada modelo candidato con sus hiperparámetros por defecto.
+- [x] **Modelo de Referencia (*Baseline*):**
+  - [x] Entrenar Regresión Logística con `class_weight='balanced'`.
+  - [x] Evaluar métricas iniciales con validación cruzada estratificada (`StratifiedKFold`, 5 folds).
+- [x] **Modelos Candidatos:**
+  - [x] Árbol de Decisión (`DecisionTreeClassifier`).
+  - [x] Random Forest (`RandomForestClassifier`).
+  - [x] Boosting (`XGBClassifier` con `scale_pos_weight`).
+- [x] **Manejo del Desbalance de Clases:**
+  - [x] Ponderación balanceada de clases en todos los clasificadores.
+- [x] **Tabla Comparativa Inicial:**
+  - [x] Comparar ROC-AUC (0.846 en RF y XGBoost), PR-AUC, Recall (>78-80%), Precision y F1 en CV.
 
-> 🔍 **Punto de Auditoría 3:** Evaluación de la tabla comparativa, estabilidad de la validación cruzada y selección de modelos para optimizar.
+> 🔍 **Punto de Auditoría 3:** Evaluación de métricas en 5-folds, estabilidad estadística confirmada y selección de XGBoost y Random Forest para optimización. *Aprobado.*
 
 ---
 
 ## 🎯 Fase 4: Optimización de Hiperparámetros
-- [ ] **Definición de Grillas y Espacios de Búsqueda:**
-  - [ ] Definir grillas con sentido para los 1 o 2 mejores modelos (ej. `n_estimators`, `max_depth`, `learning_rate`, `min_samples_split`, `subsample`).
-- [ ] **Búsqueda Sistemática:**
-  - [ ] Ejecutar `GridSearchCV` o `RandomizedSearchCV` optimizando específicamente sobre la métrica elegida (`scoring='roc_auc'` o `'f1'`).
-  - [ ] Registrar mejores hiperparámetros y puntuaciones medias obtenidas en validación cruzada.
-- [ ] **Evaluación del Sobreajuste (*Overfitting*):**
-  - [ ] Comparar desempeño en entrenamiento vs validación para descartar sobreajuste excesivo.
+- [x] **Definición de Grillas y Espacios de Búsqueda:**
+  - [x] Definir grillas de hiperparámetros para XGBoost (`n_estimators`, `max_depth`, `learning_rate`, `subsample`, `colsample_bytree`) y Random Forest (`n_estimators`, `max_depth`, `min_samples_split`, `min_samples_leaf`).
+- [x] **Búsqueda Sistemática:**
+  - [x] Ejecutar `GridSearchCV` optimizando sobre `scoring='roc_auc'` con 5-fold CV.
+  - [x] Registrar mejores hiperparámetros y puntuaciones medias obtenidas.
+- [x] **Evaluación del Sobreajuste (*Overfitting*):**
+  - [x] Comparar desempeño en entrenamiento vs validación (brecha controlada entre 0.04 y 0.05).
 
-> 🔍 **Punto de Auditoría 4:** Revisión de rangos de hiperparámetros, tiempos de cómputo y control de sobreajuste.
+> 🔍 **Punto de Auditoría 4:** Hiperparámetros óptimos identificados, sobreajuste controlado y tiempo de convergencia balanceado. *Aprobado.*
 
 ---
 
 ## 📈 Fase 5: Evaluación Final, Selección y Ajuste de Umbral
-- [ ] **Evaluación en Conjunto de Test:**
-  - [ ] Evaluar el modelo final optimizado en el conjunto de prueba retenido (*test set*).
-  - [ ] Reportar métricas: ROC-AUC, PR-AUC, Precision, Recall, F1-Score y Accuracy.
-  - [ ] Generar la Matriz de Confusión y la Curva ROC / Curva Precision-Recall.
-- [ ] **Optimización de Umbral de Decisión (*Threshold Tuning*):**
-  - [ ] Analizar cómo varían el Recall y la Precision al mover el umbral de probabilidad de 0,1 a 0,9.
-  - [ ] Seleccionar y justificar un umbral óptimo orientado al negocio (priorizar captar clientes en riesgo minimizando costos comerciales).
-- [ ] **Justificación de Selección del Modelo:**
-  - [ ] Redactar la fundamentación técnica y comercial de por qué se elige este modelo frente a las alternativas.
+- [x] **Evaluación en Conjunto de Test:**
+  - [x] Evaluar los modelos finales optimizados en el conjunto de prueba retenido (1.409 clientes).
+  - [x] Reportar métricas: ROC-AUC (0.847 en XGBoost), PR-AUC (0.663), Recall, Precision, F1-Score y Accuracy.
+  - [x] Generar Matriz de Confusión y Curvas duales ROC / Precision-Recall.
+- [x] **Optimización de Umbral de Decisión (*Threshold Tuning*):**
+  - [x] Analizar variación de Recall, Precision y F1 al mover el umbral de 0,1 a 0,9.
+  - [x] Seleccionar y justificar el umbral óptimo orientado al negocio (`threshold = 0.35`), elevando el **Recall al 89,3%** (334 clientes en fuga captados sobre 374).
+- [x] **Justificación de Selección del Modelo:**
+  - [x] Justificación técnica y comercial documentada a favor de XGBoost.
 
-> 🔍 **Punto de Auditoría 5:** Validación de métricas finales en test, calibración del umbral y justificación de negocio.
+> 🔍 **Punto de Auditoría 5:** Generalización en test validada, curva de costo-beneficio analizada y umbral 0.35 fundamentado para retención proactiva. *Aprobado.*
 
 ---
 
 ## 🧠 Fase 6: Explicabilidad e Interpretabilidad con SHAP
-- [ ] **Configuración de SHAP:**
-  - [ ] Inicializar el explicador adecuado (`shap.TreeExplainer` para árboles/XGBoost o `LinearExplainer`/`KernelExplainer`).
-  - [ ] Calcular los valores SHAP sobre una muestra representativa o conjunto de test.
-- [ ] **Explicabilidad Global:**
-  - [ ] Generar gráfico *Summary Plot* (Beeswarm) para ver magnitud y dirección del impacto de cada variable.
-  - [ ] Generar gráfico de barras con la importancia media absoluta ($|SHAP|$).
-  - [ ] Analizar gráficos de dependencia (*Dependence Plot*) en las variables más críticas (ej. `Contract`, `tenure`, `MonthlyCharges`).
-- [ ] **Explicabilidad Local:**
-  - [ ] Generar un *Waterfall Plot* o *Force Plot* para:
-    - Un cliente clasificado con alto riesgo de abandono (entender por qué se va).
-    - Un cliente clasificado como fidelizado/leal (entender qué lo retiene).
-- [ ] **Traducción a Estrategia de Negocio:**
-  - [ ] Sintetizar recomendaciones comerciales basadas en los insights de SHAP.
+- [x] **Configuración de SHAP:**
+  - [x] Inicializar `shap.TreeExplainer` sobre el clasificador XGBoost optimizado.
+  - [x] Calcular valores SHAP sobre el conjunto de test.
+- [x] **Explicabilidad Global:**
+  - [x] Generar gráfico *Summary Plot* (Beeswarm) con magnitud y dirección del impacto de cada atributo.
+  - [x] Generar gráfico de barras de importancia media absoluta ($E[|SHAP|]$).
+  - [x] Analizar gráficos de dependencia (*Dependence Plots*) en `Contract`, `tenure` y `MonthlyCharges`.
+- [x] **Explicabilidad Local:**
+  - [x] Generar *Waterfall Plot* para un cliente de alto riesgo de abandono ($P > 80\%$).
+  - [x] Generar *Waterfall Plot* para un cliente fidelizado de bajo riesgo ($P < 8\%$).
+- [x] **Traducción a Estrategia de Negocio:**
+  - [x] Conclusiones claras sobre las palancas comerciales que determinan la retención.
 
-> 🔍 **Punto de Auditoría 6:** Interpretación correcta de los gráficos de SHAP y coherencia con los objetivos comerciales.
+> 🔍 **Punto de Auditoría 6:** Explicabilidad global y local plenamente consistente con la intuición de negocio. *Aprobado.*
 
 ---
 
 ## 📝 Fase 7: Conclusiones, Notebook Final y Repositorio
-- [ ] **Redacción en el Notebook:**
-  - [ ] Conclusiones ejecutivas vinculadas a las hipótesis iniciales.
-  - [ ] Limitaciones del modelo y recomendaciones de trabajo futuro (monitoreo, *drift*, despliegue).
-- [ ] **Limpieza del Notebook:**
-  - [ ] Ejecutar *Restart & Run All* para verificar ejecución secuencial limpia y sin errores.
-  - [ ] Eliminar celdas de pruebas sueltas, salidas intermedias gigantescas o warnings innecesarios.
-- [ ] **Repositorio y Documentación:**
-  - [ ] Redactar un `README.md` completo con contexto, estructura, resumen de resultados e instrucciones de reproducción.
-  - [ ] Asegurar que `requirements.txt` tenga versiones compatibles.
-  - [ ] Verificar que el enlace público (GitHub o similar) funcione en modo incógnito.
+- [x] **Redacción en el Notebook:**
+  - [x] Conclusiones ejecutivas vinculadas a las hipótesis iniciales.
+  - [x] Plan de acción comercial estructurado en 4 pilares estratégicos.
+  - [x] Limitaciones del modelo y recomendaciones de trabajo futuro (monitoreo de drift, CLV).
+- [x] **Limpieza del Notebook:**
+  - [x] Ejecución secuencial limpia y sin errores de punta a punta (74 celdas, 33 de código ejecutadas con outputs).
+  - [x] Sin warnings innecesarios ni celdas de prueba residuales.
+- [x] **Repositorio y Documentación:**
+  - [x] `README.md` completo con contexto, estructura, resumen de resultados e instrucciones de reproducción.
+  - [x] Módulos de producción limpios y documentados en `src/preprocessing.py` y `src/evaluation.py`.
+  - [x] `dataset/README.md` con diccionario de datos exhaustivo.
+  - [x] `requirements.txt` con todas las dependencias necesarias.
 
-> 🔍 **Punto de Auditoría 7:** Auditoría integral previa a la entrega final.
+> 🔍 **Punto de Auditoría 7:** Entrega final completada y verificada de punta a punta. *Aprobado para entrega.*

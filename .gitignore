@@ -39,3 +39,4 @@ Thumbs.db
 # Archivos temporales
 *.tmp
 *.temp
+scratch/
